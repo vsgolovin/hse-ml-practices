@@ -1,0 +1,91 @@
+src/eda.py:3:1: E302 expected 2 blank lines, found 1
+src/eda.py:7:1: E302 expected 2 blank lines, found 1
+src/eda.py:11:1: E305 expected 2 blank lines after class or function definition, found 1
+src/eda.py:16:80: E501 line too long (94 > 79 characters)
+src/eda.py:21:80: E501 line too long (85 > 79 characters)
+src/eda.py:25:80: E501 line too long (87 > 79 characters)
+src/eda.py:26:80: E501 line too long (80 > 79 characters)
+src/feature_engineering.py:6:1: E302 expected 2 blank lines, found 1
+src/feature_engineering.py:10:1: E302 expected 2 blank lines, found 1
+src/feature_engineering.py:14:1: E305 expected 2 blank lines after class or function definition, found 1
+src/feature_engineering.py:27:80: E501 line too long (82 > 79 characters)
+src/feature_engineering.py:30:80: E501 line too long (95 > 79 characters)
+src/feature_engineering.py:33:80: E501 line too long (126 > 79 characters)
+src/feature_engineering.py:34:80: E501 line too long (134 > 79 characters)
+src/feature_engineering.py:37:1: E302 expected 2 blank lines, found 1
+src/feature_engineering.py:37:27: W291 trailing whitespace
+src/feature_engineering.py:38:1: W293 blank line contains whitespace
+src/feature_engineering.py:40:1: W293 blank line contains whitespace
+src/feature_engineering.py:41:31: W291 trailing whitespace
+src/feature_engineering.py:45:49: W291 trailing whitespace
+src/feature_engineering.py:48:1: W293 blank line contains whitespace
+src/feature_engineering.py:50:9: F841 local variable 'title' is assigned to but never used
+src/feature_engineering.py:51:1: W293 blank line contains whitespace
+src/feature_engineering.py:54:1: W293 blank line contains whitespace
+src/feature_engineering.py:56:1: W293 blank line contains whitespace
+src/feature_engineering.py:59:1: E305 expected 2 blank lines after class or function definition, found 1
+src/feature_engineering.py:64:80: E501 line too long (89 > 79 characters)
+src/feature_engineering.py:65:80: E501 line too long (97 > 79 characters)
+src/feature_engineering.py:66:80: E501 line too long (96 > 79 characters)
+src/feature_engineering.py:68:74: E231 missing whitespace after ','
+src/feature_engineering.py:68:80: E501 line too long (97 > 79 characters)
+src/feature_engineering.py:69:74: E231 missing whitespace after ','
+src/feature_engineering.py:69:80: E501 line too long (102 > 79 characters)
+src/feature_engineering.py:75:80: E501 line too long (89 > 79 characters)
+src/feature_engineering.py:76:80: E501 line too long (106 > 79 characters)
+src/feature_engineering.py:77:80: E501 line too long (91 > 79 characters)
+src/feature_engineering.py:80:80: E501 line too long (89 > 79 characters)
+src/feature_engineering.py:81:80: E501 line too long (105 > 79 characters)
+src/feature_engineering.py:82:80: E501 line too long (91 > 79 characters)
+src/feature_engineering.py:98:1: W293 blank line contains whitespace
+src/feature_engineering.py:101:80: E501 line too long (81 > 79 characters)
+src/feature_engineering.py:106:1: W293 blank line contains whitespace
+src/feature_engineering.py:124:1: W293 blank line contains whitespace
+src/feature_engineering.py:127:80: E501 line too long (81 > 79 characters)
+src/feature_engineering.py:132:1: W293 blank line contains whitespace
+src/feature_engineering.py:139:80: E501 line too long (87 > 79 characters)
+src/feature_engineering.py:140:80: E501 line too long (96 > 79 characters)
+src/feature_engineering.py:140:97: W291 trailing whitespace
+src/feature_engineering.py:143:80: E501 line too long (97 > 79 characters)
+src/feature_engineering.py:146:41: W291 trailing whitespace
+src/feature_engineering.py:149:80: E501 line too long (84 > 79 characters)
+src/feature_engineering.py:154:80: E501 line too long (97 > 79 characters)
+src/feature_engineering.py:165:80: E501 line too long (80 > 79 characters)
+src/feature_engineering.py:166:80: E501 line too long (89 > 79 characters)
+src/feature_engineering.py:167:13: E128 continuation line under-indented for visual indent
+src/feature_engineering.py:167:80: E501 line too long (113 > 79 characters)
+src/model.py:14:80: E501 line too long (100 > 79 characters)
+src/model.py:26:61: W291 trailing whitespace
+src/model.py:51:80: E501 line too long (137 > 79 characters)
+src/model.py:52:80: E501 line too long (137 > 79 characters)
+src/model.py:60:1: W293 blank line contains whitespace
+src/model.py:63:1: W293 blank line contains whitespace
+src/model.py:65:80: E501 line too long (123 > 79 characters)
+src/model.py:68:80: E501 line too long (123 > 79 characters)
+src/model.py:69:42: W291 trailing whitespace
+src/model.py:70:1: W293 blank line contains whitespace
+src/model.py:74:1: W293 blank line contains whitespace
+src/model.py:76:80: E501 line too long (95 > 79 characters)
+src/model.py:77:80: E501 line too long (95 > 79 characters)
+src/model.py:79:1: W293 blank line contains whitespace
+src/model.py:81:80: W291 trailing whitespace
+src/model.py:82:1: W293 blank line contains whitespace
+src/model.py:96:80: E501 line too long (84 > 79 characters)
+src/model.py:102:1: E302 expected 2 blank lines, found 1
+src/model.py:103:1: W293 blank line contains whitespace
+src/model.py:108:1: W293 blank line contains whitespace
+src/model.py:115:80: E501 line too long (97 > 79 characters)
+src/model.py:116:1: W293 blank line contains whitespace
+src/model.py:118:80: E501 line too long (97 > 79 characters)
+src/model.py:119:1: W293 blank line contains whitespace
+src/model.py:124:1: W293 blank line contains whitespace
+src/model.py:126:75: W605 invalid escape sequence '\p'
+src/model.py:126:80: E501 line too long (131 > 79 characters)
+src/model.py:127:1: W293 blank line contains whitespace
+src/model.py:132:80: E501 line too long (104 > 79 characters)
+src/model.py:132:87: W605 invalid escape sequence '\p'
+src/model.py:133:1: W293 blank line contains whitespace
+src/model.py:143:1: W293 blank line contains whitespace
+src/model.py:147:1: E305 expected 2 blank lines after class or function definition, found 1
+src/model.py:161:80: E501 line too long (100 > 79 characters)
+src/model.py:162:80: E501 line too long (94 > 79 characters)
