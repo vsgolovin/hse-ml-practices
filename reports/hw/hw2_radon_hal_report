@@ -1,0 +1,39 @@
+src/eda.py:
+    h1: 1
+    h2: 2
+    N1: 1
+    N2: 2
+    vocabulary: 3
+    length: 3
+    calculated_length: 2.0
+    volume: 4.754887502163469
+    difficulty: 0.5
+    effort: 2.3774437510817346
+    time: 0.1320802083934297
+    bugs: 0.0015849625007211565
+src/feature_engineering.py:
+    h1: 7
+    h2: 35
+    N1: 22
+    N2: 43
+    vocabulary: 42
+    length: 65
+    calculated_length: 199.17639004747704
+    volume: 350.50063248061946
+    difficulty: 4.3
+    effort: 1507.1527196666636
+    time: 83.73070664814799
+    bugs: 0.11683354416020648
+src/model.py:
+    h1: 6
+    h2: 15
+    N1: 17
+    N2: 28
+    vocabulary: 21
+    length: 45
+    calculated_length: 74.11313393845472
+    volume: 197.65428402504423
+    difficulty: 5.6
+    effort: 1106.8639905402476
+    time: 61.492443918902644
+    bugs: 0.0658847613416814
