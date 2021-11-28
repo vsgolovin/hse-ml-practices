@@ -1,18 +1,14 @@
+"""
+Modify raw data by using the results of exploratory data analysis.
+See the corresponding section of the jupyter-notebook for more details.
+"""
+
 import pandas as pd
+from read_data import read_test, read_train, concat_df, split_df
 
 
-def concat_df(train_data, test_data):
-    "Returns a concatenated df of training and test set"
-    return pd.concat([train_data, test_data], sort=True).reset_index(drop=True)
-
-
-def divide_df(all_data):
-    # Returns divided dfs of training and test set
-    return all_data.loc[:890], all_data.loc[891:].drop(['Survived'], axis=1)
-
-
-df_train = pd.read_csv('data/raw/train.csv')
-df_test = pd.read_csv('data/raw/test.csv')
+df_train = read_train('raw')
+df_test = read_test('raw')
 df_all = concat_df(df_train, df_test)
 
 # Filling the missing values in Age with the medians of Sex and Pclass groups
@@ -44,6 +40,6 @@ df_all['Deck'] = df_all['Deck'].replace(['F', 'G'], 'FG')
 df_all.drop(['Cabin'], inplace=True, axis=1)
 
 # Save processed train and test datasets
-df_train, df_test = divide_df(df_all)
+df_train, df_test = split_df(df_all)
 df_train.to_csv('data/interim/train.csv', index=False)
 df_test.to_csv('data/interim/test.csv', index=False)
