@@ -1,22 +1,71 @@
+"""
+Create new features and drop useless ones.
+Data is read from `data/interim` and should not have NaNs.
+New data is saved to `data/processed` and it intended to be used for training
+and testing the model.
+"""
+
 import string
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+import read_data as rd
 
 
-def concat_df(train_data, test_data):
-    # Returns a concatenated df of training and test set
-    return pd.concat([train_data, test_data], sort=True).reset_index(drop=True)
+def extract_surname(data: pd.Series) -> list:
+    """
+    Extract surnames from `data`. Removes maiden names and punctuation.
+    """
+    families = []
+    for j in range(len(data)):
+        name = data.iloc[j]
+
+        if '(' in name:
+            name_no_bracket = name.split('(')[0]
+        else:
+            name_no_bracket = name
+
+        family = name_no_bracket.split(',')[0]
+        for char in string.punctuation:
+            family = family.replace(char, '').strip()
+        families.append(family)
+
+    return families
 
 
-def divide_df(all_data):
-    # Returns divided dfs of training and test set
-    return all_data.loc[:890], all_data.loc[891:].drop(['Survived'], axis=1)
+def nonuniques(x_1, x_2):
+    """
+    Returns a list of values that occur both in `x_1` and `x_2`.
+    """
+    s_1 = set(x_1)
+    s_2 = set(x_2)
+    return list(s_1.intersection(s_2))
 
 
-df_train = pd.read_csv('data/interim/train.csv')
-df_test = pd.read_csv('data/interim/test.csv')
-df_all = concat_df(df_train, df_test)
+def survival_rates(df_trn, df_tst, index_column,
+                   value_column, value_min=1):
+    """
+    Calculate survival rates for unique values of `index_column`.
+    Only uses entries with `value_column' feature `> value_min`.
+    """
+    # values occur in both train and test sets
+    non_unique = nonuniques(df_trn[index_column], df_tst[index_column])
+    # dataframe with `group_cols` columns and `column` index
+    group_cols = [index_column, 'Survived', value_column]
+    value_index = 1
+    df_sr = df_trn.groupby(index_column)[group_cols].median()
+    rates = {}
+    for i in range(len(df_sr)):
+        if (df_sr.index[i] in non_unique \
+           and df_sr.iloc[i, value_index] > value_min):
+            rates[df_sr.index[i]] = df_sr.iloc[i, 0]
+    return rates
+
+
+# Read data
+df_train = rd.read_train('interim')
+df_test = rd.read_test('interim')
+df_all = rd.concat_df(df_train, df_test)
 
 # Binning continuous features
 df_all['Fare'] = pd.qcut(df_all['Fare'], 13)
@@ -35,72 +84,21 @@ df_all['Title'] = df_all['Name'].str.split(
     ', ', expand=True)[1].str.split('.', expand=True)[0]
 df_all['Is_Married'] = 0
 df_all['Is_Married'].loc[df_all['Title'] == 'Mrs'] = 1
-df_all['Title'] = df_all['Title'].replace(
+df_all['Title'].replace(
     ['Miss', 'Mrs', 'Ms', 'Mlle', 'Lady', 'Mme', 'the Countess', 'Dona'],
-    'Miss/Mrs/Ms')
-df_all['Title'] = df_all['Title'].replace(
+    'Miss/Mrs/Ms', inplace=True)
+df_all['Title'].replace(
     ['Dr', 'Col', 'Major', 'Jonkheer', 'Capt', 'Sir', 'Don', 'Rev'],
-    'Dr/Military/Noble/Clergy')
-
+    'Dr/Military/Noble/Clergy', inplace=True)
 
 # Target encoding
-def extract_surname(data):
-    families = []
-    for i in range(len(data)):
-        name = data.iloc[i]
-
-        if '(' in name:
-            name_no_bracket = name.split('(')[0]
-        else:
-            name_no_bracket = name
-
-        family = name_no_bracket.split(',')[0]
-        for c in string.punctuation:
-            family = family.replace(c, '').strip()
-        families.append(family)
-
-    return families
-
-
 df_all['Family'] = extract_surname(df_all['Name'])
-df_train = df_all.loc[:890]
-df_test = df_all.loc[891:]
+df_train, df_test = rd.split_df(df_all, drop_test=None)
 dfs = [df_train, df_test]
 
-# Creating a list of families and tickets
-# that are occuring in both training and test set
-non_unique_families = [x for x in df_train['Family'].unique()
-                       if x in df_test['Family'].unique()]
-non_unique_tickets = [x for x in df_train['Ticket'].unique()
-                      if x in df_test['Ticket'].unique()]
-
-df_family_survival_rate = \
-    df_train.groupby('Family')['Survived', 'Family', 'Family_Size'].median()
-df_ticket_survival_rate = \
-    df_train.groupby('Ticket')['Survived',
-                               'Ticket', 'Ticket_Frequency'].median()
-
-family_rates = {}
-ticket_rates = {}
-
-for i in range(len(df_family_survival_rate)):
-    # Checking a family exists in both training and test set,
-    # and has members more than 1
-    if (df_family_survival_rate.index[i]
-            in non_unique_families
-            and df_family_survival_rate.iloc[i, 1] > 1):
-        family_rates[df_family_survival_rate.index[i]] =\
-            df_family_survival_rate.iloc[i, 0]
-
-for i in range(len(df_ticket_survival_rate)):
-    # Checking a ticket exists in both training and test set,
-    # and has more than 1 member
-    if (df_ticket_survival_rate.index[i]
-            in non_unique_tickets
-            and df_ticket_survival_rate.iloc[i, 1] > 1):
-        ticket_rates[df_ticket_survival_rate.index[i]] = \
-            df_ticket_survival_rate.iloc[i, 0]
-
+# Survival rates
+family_rates = survival_rates(df_train, df_test, 'Family', 'Family_Size')
+ticket_rates = survival_rates(df_train, df_test, 'Ticket', 'Ticket_Frequency')
 mean_survival_rate = np.mean(df_train['Survived'])
 
 train_family_survival_rate = []

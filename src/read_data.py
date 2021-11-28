@@ -39,12 +39,15 @@ def concat_df(df_train: pd.DataFrame, df_test: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([df_train, df_test], sort=True).reset_index(drop=True)
 
 
-def split_df(df_all: pd.DataFrame, row_num=890):
+def split_df(df_all: pd.DataFrame, row_num=890, drop_test=['Survived']):
     """
     Split dataframe `df` in 2 dataframes -- train and test sets.
     Include all rows up to `row_num` in the train set.
     Both returned dataframes are copies of the original.
     """
     df_train = df_all.loc[:row_num].copy()
-    df_test = df_all.loc[row_num + 1:].drop(['Survived'], axis=1)
+    if drop_test:
+        df_test = df_all.loc[row_num + 1:].drop(drop_test, axis=1)
+    else:
+        df_test = df_all.loc[row_num + 1:].copy()
     return df_train, df_test
