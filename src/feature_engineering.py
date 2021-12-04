@@ -42,8 +42,8 @@ def nonuniques(x_1, x_2):
     return list(s_1.intersection(s_2))
 
 
-def survival_rates(df_trn, df_tst, index_column,
-                   value_column, value_min=1):
+def survival_rates(df_trn: pd.DataFrame, df_tst: pd.DataFrame, index_column: str,
+                   value_column: str, value_min: int = 1) -> tuple:
     """
     Calculate survival rates for unique values of `index_column`.
     Only uses entries with `value_column' feature `> value_min`.
@@ -51,15 +51,65 @@ def survival_rates(df_trn, df_tst, index_column,
     # values occur in both train and test sets
     non_unique = nonuniques(df_trn[index_column], df_tst[index_column])
     # dataframe with `group_cols` columns and `column` index
-    group_cols = [index_column, 'Survived', value_column]
-    value_index = 1
-    df_sr = df_trn.groupby(index_column)[group_cols].median()
+    df_sr = df_trn.groupby(index_column)[[index_column, 'Survived',
+                                          value_column]].median()
     rates = {}
     for i in range(len(df_sr)):
         if (df_sr.index[i] in non_unique \
-           and df_sr.iloc[i, value_index] > value_min):
+           and df_sr.iloc[i, 1] > value_min):
             rates[df_sr.index[i]] = df_sr.iloc[i, 0]
-    return rates
+
+    # dict -> 2 lists for modifying df_tst and df_trn
+    mean_surv_rate = np.mean(df_trn['Survived'])
+
+    # train dataset
+    rates_train = []
+    rates_train_na = []
+    for key in df_trn[index_column]:
+        if key in rates:
+            rates_train.append(rates[key])
+            rates_train_na.append(1)
+        else:
+            rates_train.append(mean_surv_rate)
+            rates_train_na.append(0)
+
+    # test dataset
+    rates_test = []
+    rates_test_na = []
+    for key in df_tst[index_column]:
+        if key in rates:
+            rates_test.append(rates[key])
+            rates_test_na.append(1)
+        else:
+            rates_test.append(mean_surv_rate)
+            rates_test_na.append(0)
+
+    return rates_train, rates_train_na, rates_test, rates_test_na
+
+
+def convert_nonnumerical_features(dframe, features):
+    """
+    Modify `dframe` to convert non-numerical `features` to numerical type.
+    """
+    for feature in features:
+        dframe[feature] = LabelEncoder().fit_transform(dframe[feature])
+
+
+def encode_categorical_features(dframe, features):
+    """
+    Encode categorical `features` in `dframe` with One-Hot encoder.
+    """
+    encoded_features = []
+    for feature in features:
+        encoded_feat = OneHotEncoder().fit_transform(
+            dframe[feature].values.reshape(-1, 1)).toarray()
+        num = dframe[feature].nunique()
+        cols = ['{}_{}'.format(feature, n) for n in range(1, num + 1)]
+        encoded_df = pd.DataFrame(encoded_feat, columns=cols)
+        encoded_df.index = dframe.index
+        encoded_features.append(encoded_df)
+    dframe = pd.concat([dframe, *encoded_features], axis=1)
+    return dframe
 
 
 # Read data
@@ -94,67 +144,22 @@ df_all['Title'].replace(
 # Target encoding
 df_all['Family'] = extract_surname(df_all['Name'])
 df_train, df_test = rd.split_df(df_all, drop_test=None)
-dfs = [df_train, df_test]
 
 # Survival rates
-family_rates = survival_rates(df_train, df_test, 'Family', 'Family_Size')
-ticket_rates = survival_rates(df_train, df_test, 'Ticket', 'Ticket_Frequency')
-mean_survival_rate = np.mean(df_train['Survived'])
+train_fsr, train_fsr_NA, test_fsr, test_fsr_NA = \
+    survival_rates(df_train, df_test, 'Family', 'Family_Size')
+train_tsr, train_tsr_NA, test_tsr, test_tsr_NA = \
+    survival_rates(df_train, df_test, 'Ticket', 'Ticket_Frequency')
 
-train_family_survival_rate = []
-train_family_survival_rate_NA = []
-test_family_survival_rate = []
-test_family_survival_rate_NA = []
-
-for i in range(len(df_train)):
-    if df_train['Family'][i] in family_rates:
-        train_family_survival_rate.append(family_rates[df_train['Family'][i]])
-        train_family_survival_rate_NA.append(1)
-    else:
-        train_family_survival_rate.append(mean_survival_rate)
-        train_family_survival_rate_NA.append(0)
-
-for i in range(len(df_test)):
-    if df_test['Family'].iloc[i] in family_rates:
-        test_family_survival_rate.append(
-            family_rates[df_test['Family'].iloc[i]])
-        test_family_survival_rate_NA.append(1)
-    else:
-        test_family_survival_rate.append(mean_survival_rate)
-        test_family_survival_rate_NA.append(0)
-
-df_train['Family_Survival_Rate'] = train_family_survival_rate
-df_train['Family_Survival_Rate_NA'] = train_family_survival_rate_NA
-df_test['Family_Survival_Rate'] = test_family_survival_rate
-df_test['Family_Survival_Rate_NA'] = test_family_survival_rate_NA
-
-train_ticket_survival_rate = []
-train_ticket_survival_rate_NA = []
-test_ticket_survival_rate = []
-test_ticket_survival_rate_NA = []
-
-for i in range(len(df_train)):
-    if df_train['Ticket'][i] in ticket_rates:
-        train_ticket_survival_rate.append(ticket_rates[df_train['Ticket'][i]])
-        train_ticket_survival_rate_NA.append(1)
-    else:
-        train_ticket_survival_rate.append(mean_survival_rate)
-        train_ticket_survival_rate_NA.append(0)
-
-for i in range(len(df_test)):
-    if df_test['Ticket'].iloc[i] in ticket_rates:
-        test_ticket_survival_rate.append(
-            ticket_rates[df_test['Ticket'].iloc[i]])
-        test_ticket_survival_rate_NA.append(1)
-    else:
-        test_ticket_survival_rate.append(mean_survival_rate)
-        test_ticket_survival_rate_NA.append(0)
-
-df_train['Ticket_Survival_Rate'] = train_ticket_survival_rate
-df_train['Ticket_Survival_Rate_NA'] = train_ticket_survival_rate_NA
-df_test['Ticket_Survival_Rate'] = test_ticket_survival_rate
-df_test['Ticket_Survival_Rate_NA'] = test_ticket_survival_rate_NA
-
+# Add corresponding features to datasets
+df_train['Family_Survival_Rate'] = train_fsr
+df_train['Family_Survival_Rate_NA'] = train_fsr_NA
+df_test['Family_Survival_Rate'] = test_fsr
+df_test['Family_Survival_Rate_NA'] = test_fsr_NA
+df_train['Ticket_Survival_Rate'] = train_tsr
+df_train['Ticket_Survival_Rate_NA'] = train_tsr_NA
+df_test['Ticket_Survival_Rate'] = test_tsr
+df_test['Ticket_Survival_Rate_NA'] = test_tsr_NA
 for df in [df_train, df_test]:
     df['Survival_Rate'] = \
         (df['Ticket_Survival_Rate'] + df['Family_Survival_Rate']) / 2
@@ -164,27 +169,13 @@ for df in [df_train, df_test]:
 # Feature transformation
 non_numeric_features = ['Embarked', 'Sex', 'Deck',
                         'Title', 'Family_Size_Grouped', 'Age', 'Fare']
-
-for df in dfs:
-    for feature in non_numeric_features:
-        df[feature] = LabelEncoder().fit_transform(df[feature])
+for df in [df_train, df_test]:
+    convert_nonnumerical_features(df, non_numeric_features)
 
 cat_features = ['Pclass', 'Sex', 'Deck', 'Embarked', 'Title',
                 'Family_Size_Grouped']
-encoded_features = []
-
-for df in dfs:
-    for feature in cat_features:
-        encoded_feat = OneHotEncoder().fit_transform(
-            df[feature].values.reshape(-1, 1)).toarray()
-        n = df[feature].nunique()
-        cols = ['{}_{}'.format(feature, n) for n in range(1, n + 1)]
-        encoded_df = pd.DataFrame(encoded_feat, columns=cols)
-        encoded_df.index = df.index
-        encoded_features.append(encoded_df)
-
-df_train = pd.concat([df_train, *encoded_features[:6]], axis=1)
-df_test = pd.concat([df_test, *encoded_features[6:]], axis=1)
+df_train = encode_categorical_features(df_train, cat_features)
+df_test = encode_categorical_features(df_test, cat_features)
 
 # Drop useless features
 drop_cols = ['Deck', 'Embarked', 'Family', 'Family_Size',
@@ -192,7 +183,7 @@ drop_cols = ['Deck', 'Embarked', 'Family', 'Family_Size',
              'Sex', 'SibSp', 'Ticket', 'Title', 'Ticket_Survival_Rate',
              'Family_Survival_Rate', 'Ticket_Survival_Rate_NA',
              'Family_Survival_Rate_NA']
-# unlike notebook, do not drop 'Survive'
+# unlike notebook, do not drop 'Survived'
 df_train.drop(columns=drop_cols, inplace=True)
 df_test.drop(columns=drop_cols, inplace=True)
 
