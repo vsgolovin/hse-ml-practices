@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import StratifiedKFold
-import read_data as rd
+import src.read_data as rd
 
 SEED = 42
 N_FOLDS = 5
@@ -34,20 +34,11 @@ def main():
     print('x_test shape: {}'.format(x_test.shape))
 
     # Random forest classifier
-    leaderboard_model = RandomForestClassifier(criterion='gini',
-                                               n_estimators=1750,
-                                               max_depth=7,
-                                               min_samples_split=6,
-                                               min_samples_leaf=6,
-                                               max_features='auto',
-                                               oob_score=True,
-                                               random_state=SEED,
-                                               n_jobs=-1,
-                                               verbose=1)
+    model = leaderboard_model()
 
     # train model
     fprs, tprs, probs, importances = run_classifier(
-        leaderboard_model, x_train, y_train, x_test, df_all)
+        model, x_train, y_train, x_test, df_all)
 
     # plotting
     fig = plot_roc_curve(fprs, tprs)
@@ -59,6 +50,23 @@ def main():
     submission_df = kaggle_submission(probs)
     submission_df.to_csv('reports/data/submissions.csv',
                          header=True, index=False)
+
+
+def leaderboard_model():
+    """
+    Returns classifier with hyperparameters optimized for Kaggle leaderboard.
+    Function created purely for testing convenience.
+    """
+    return RandomForestClassifier(criterion='gini',
+                                  n_estimators=1750,
+                                  max_depth=7,
+                                  min_samples_split=6,
+                                  min_samples_leaf=6,
+                                  max_features='auto',
+                                  oob_score=True,
+                                  random_state=SEED,
+                                  n_jobs=-1,
+                                  verbose=1)
 
 
 def run_classifier(model, x_train, y_train, x_test, df_all):

@@ -9,7 +9,89 @@ import string
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
-import read_data as rd
+import src.read_data as rd
+
+
+def main():
+    # Read data
+    df_train = rd.read_train('interim')
+    df_test = rd.read_test('interim')
+    df_all = rd.concat_df(df_train, df_test)
+
+    # Binning continuous features
+    df_all['Fare'] = pd.qcut(df_all['Fare'], 13)
+    df_all['Age'] = pd.qcut(df_all['Age'], 10)
+
+    # Frequency encoding
+    df_all['Family_Size'] = df_all['SibSp'] + df_all['Parch'] + 1
+    family_map = {1: 'Alone', 2: 'Small', 3: 'Small', 4: 'Small', 5: 'Medium',
+                  6: 'Medium', 7: 'Large', 8: 'Large', 11: 'Large'}
+    df_all['Family_Size_Grouped'] = df_all['Family_Size'].map(family_map)
+    df_all['Ticket_Frequency'] = \
+        df_all.groupby('Ticket')['Ticket'].transform('count')
+
+    # New features
+    df_all['Title'] = df_all['Name'].str.split(
+        ', ', expand=True)[1].str.split('.', expand=True)[0]
+    df_all['Is_Married'] = 0
+    df_all['Is_Married'].loc[df_all['Title'] == 'Mrs'] = 1
+    df_all['Title'].replace(
+        ['Miss', 'Mrs', 'Ms', 'Mlle', 'Lady', 'Mme', 'the Countess', 'Dona'],
+        'Miss/Mrs/Ms', inplace=True)
+    df_all['Title'].replace(
+        ['Dr', 'Col', 'Major', 'Jonkheer', 'Capt', 'Sir', 'Don', 'Rev'],
+        'Dr/Military/Noble/Clergy', inplace=True)
+
+    # Target encoding
+    df_all['Family'] = extract_surname(df_all['Name'])
+    df_train, df_test = rd.split_df(df_all, drop_test=None)
+
+    # Survival rates
+    train_fsr, train_fsr_NA, test_fsr, test_fsr_NA = \
+        survival_rates(df_train, df_test, 'Family', 'Family_Size')
+    train_tsr, train_tsr_NA, test_tsr, test_tsr_NA = \
+        survival_rates(df_train, df_test, 'Ticket', 'Ticket_Frequency')
+
+    # Add corresponding features to datasets
+    df_train['Family_Survival_Rate'] = train_fsr
+    df_train['Family_Survival_Rate_NA'] = train_fsr_NA
+    df_test['Family_Survival_Rate'] = test_fsr
+    df_test['Family_Survival_Rate_NA'] = test_fsr_NA
+    df_train['Ticket_Survival_Rate'] = train_tsr
+    df_train['Ticket_Survival_Rate_NA'] = train_tsr_NA
+    df_test['Ticket_Survival_Rate'] = test_tsr
+    df_test['Ticket_Survival_Rate_NA'] = test_tsr_NA
+    for df in [df_train, df_test]:
+        df['Survival_Rate'] = \
+            (df['Ticket_Survival_Rate'] + df['Family_Survival_Rate']) / 2
+        df['Survival_Rate_NA'] = \
+            (df['Ticket_Survival_Rate_NA'] + df['Family_Survival_Rate_NA']) / 2
+
+    # Feature transformation
+    non_numeric_features = ['Embarked', 'Sex', 'Deck',
+                            'Title', 'Family_Size_Grouped', 'Age', 'Fare']
+    for df in [df_train, df_test]:
+        convert_nonnumerical_features(df, non_numeric_features)
+
+    cat_features = ['Pclass', 'Sex', 'Deck', 'Embarked', 'Title',
+                    'Family_Size_Grouped']
+    df_train = encode_categorical_features(df_train, cat_features)
+    df_test = encode_categorical_features(df_test, cat_features)
+
+    # Drop useless features
+    drop_cols = ['Deck', 'Embarked', 'Family', 'Family_Size',
+                 'Family_Size_Grouped', 'Name', 'Parch', 'PassengerId',
+                 'Pclass', 'Sex', 'SibSp', 'Ticket',
+                 'Title', 'Ticket_Survival_Rate',
+                 'Family_Survival_Rate', 'Ticket_Survival_Rate_NA',
+                 'Family_Survival_Rate_NA']
+    # unlike notebook, do not drop 'Survived'
+    df_train.drop(columns=drop_cols, inplace=True)
+    df_test.drop(columns=drop_cols, inplace=True)
+
+    # port processed data
+    df_train.to_csv('data/processed/train.csv', index=False)
+    df_test.to_csv('data/processed/test.csv', index=False)
 
 
 def extract_surname(data: pd.Series) -> list:
@@ -115,81 +197,5 @@ def encode_categorical_features(dframe, features):
     return dframe
 
 
-# Read data
-df_train = rd.read_train('interim')
-df_test = rd.read_test('interim')
-df_all = rd.concat_df(df_train, df_test)
-
-# Binning continuous features
-df_all['Fare'] = pd.qcut(df_all['Fare'], 13)
-df_all['Age'] = pd.qcut(df_all['Age'], 10)
-
-# Frequency encoding
-df_all['Family_Size'] = df_all['SibSp'] + df_all['Parch'] + 1
-family_map = {1: 'Alone', 2: 'Small', 3: 'Small', 4: 'Small', 5: 'Medium',
-              6: 'Medium', 7: 'Large', 8: 'Large', 11: 'Large'}
-df_all['Family_Size_Grouped'] = df_all['Family_Size'].map(family_map)
-df_all['Ticket_Frequency'] = \
-    df_all.groupby('Ticket')['Ticket'].transform('count')
-
-# New features
-df_all['Title'] = df_all['Name'].str.split(
-    ', ', expand=True)[1].str.split('.', expand=True)[0]
-df_all['Is_Married'] = 0
-df_all['Is_Married'].loc[df_all['Title'] == 'Mrs'] = 1
-df_all['Title'].replace(
-    ['Miss', 'Mrs', 'Ms', 'Mlle', 'Lady', 'Mme', 'the Countess', 'Dona'],
-    'Miss/Mrs/Ms', inplace=True)
-df_all['Title'].replace(
-    ['Dr', 'Col', 'Major', 'Jonkheer', 'Capt', 'Sir', 'Don', 'Rev'],
-    'Dr/Military/Noble/Clergy', inplace=True)
-
-# Target encoding
-df_all['Family'] = extract_surname(df_all['Name'])
-df_train, df_test = rd.split_df(df_all, drop_test=None)
-
-# Survival rates
-train_fsr, train_fsr_NA, test_fsr, test_fsr_NA = \
-    survival_rates(df_train, df_test, 'Family', 'Family_Size')
-train_tsr, train_tsr_NA, test_tsr, test_tsr_NA = \
-    survival_rates(df_train, df_test, 'Ticket', 'Ticket_Frequency')
-
-# Add corresponding features to datasets
-df_train['Family_Survival_Rate'] = train_fsr
-df_train['Family_Survival_Rate_NA'] = train_fsr_NA
-df_test['Family_Survival_Rate'] = test_fsr
-df_test['Family_Survival_Rate_NA'] = test_fsr_NA
-df_train['Ticket_Survival_Rate'] = train_tsr
-df_train['Ticket_Survival_Rate_NA'] = train_tsr_NA
-df_test['Ticket_Survival_Rate'] = test_tsr
-df_test['Ticket_Survival_Rate_NA'] = test_tsr_NA
-for df in [df_train, df_test]:
-    df['Survival_Rate'] = \
-        (df['Ticket_Survival_Rate'] + df['Family_Survival_Rate']) / 2
-    df['Survival_Rate_NA'] = \
-        (df['Ticket_Survival_Rate_NA'] + df['Family_Survival_Rate_NA']) / 2
-
-# Feature transformation
-non_numeric_features = ['Embarked', 'Sex', 'Deck',
-                        'Title', 'Family_Size_Grouped', 'Age', 'Fare']
-for df in [df_train, df_test]:
-    convert_nonnumerical_features(df, non_numeric_features)
-
-cat_features = ['Pclass', 'Sex', 'Deck', 'Embarked', 'Title',
-                'Family_Size_Grouped']
-df_train = encode_categorical_features(df_train, cat_features)
-df_test = encode_categorical_features(df_test, cat_features)
-
-# Drop useless features
-drop_cols = ['Deck', 'Embarked', 'Family', 'Family_Size',
-             'Family_Size_Grouped', 'Name', 'Parch', 'PassengerId', 'Pclass',
-             'Sex', 'SibSp', 'Ticket', 'Title', 'Ticket_Survival_Rate',
-             'Family_Survival_Rate', 'Ticket_Survival_Rate_NA',
-             'Family_Survival_Rate_NA']
-# unlike notebook, do not drop 'Survived'
-df_train.drop(columns=drop_cols, inplace=True)
-df_test.drop(columns=drop_cols, inplace=True)
-
-# port processed data
-df_train.to_csv('data/processed/train.csv', index=False)
-df_test.to_csv('data/processed/test.csv', index=False)
+if __name__ == '__main__':
+    main()

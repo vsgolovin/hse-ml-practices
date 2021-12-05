@@ -2,7 +2,6 @@
 Functions for reading and concatenating / splitting data.
 """
 
-
 import pandas as pd
 
 DATA_PATH = 'data'
@@ -51,4 +50,4 @@ def split_df(df_all: pd.DataFrame, row_num=890, drop_test=('Survived')):
         df_test = df_all.loc[row_num + 1:].drop(drop_test, axis=1)
     else:
         df_test = df_all.loc[row_num + 1:].copy()
-    return df_train, df_test
+    return df_train, df_test.reset_index(drop=True)
