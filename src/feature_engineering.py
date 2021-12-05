@@ -25,7 +25,7 @@ def main():
     # Frequency encoding
     df_all['Family_Size'] = df_all['SibSp'] + df_all['Parch'] + 1
     family_map = {1: 'Alone', 2: 'Small', 3: 'Small', 4: 'Small', 5: 'Medium',
-                6: 'Medium', 7: 'Large', 8: 'Large', 11: 'Large'}
+                  6: 'Medium', 7: 'Large', 8: 'Large', 11: 'Large'}
     df_all['Family_Size_Grouped'] = df_all['Family_Size'].map(family_map)
     df_all['Ticket_Frequency'] = \
         df_all.groupby('Ticket')['Ticket'].transform('count')

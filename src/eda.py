@@ -12,7 +12,8 @@ def main():
     df_test = read_test('raw')
     df_all = concat_df(df_train, df_test)
 
-    # Filling the missing values in Age with the medians of Sex and Pclass groups
+    # Filling the missing values in Age
+    # with the medians of Sex and Pclass groups
     df_all['Age'] = df_all.groupby(['Sex', 'Pclass'])['Age'].apply(
         lambda x: x.fillna(x.median()))
 
@@ -21,7 +22,8 @@ def main():
 
     # Filling the missing value in Fare with the median Fare
     # of 3rd class alone passenger
-    med_fare = df_all.groupby(['Pclass', 'Parch', 'SibSp']).Fare.median()[3][0][0]
+    med_fare = df_all.groupby(['Pclass',
+                               'Parch', 'SibSp']).Fare.median()[3][0][0]
     df_all['Fare'] = df_all['Fare'].fillna(med_fare)
 
     # Creating Deck column from the first letter of the Cabin column
