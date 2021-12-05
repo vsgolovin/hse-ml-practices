@@ -19,4 +19,4 @@ jobs:
         pip install flake8
     - name: Linting with flake8
       run: |
-        flake8 src/*.py tests*/.py
+        flake8 src/*.py tests/*.py
