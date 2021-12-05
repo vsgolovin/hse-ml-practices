@@ -42,8 +42,11 @@ def nonuniques(x_1, x_2):
     return list(s_1.intersection(s_2))
 
 
-def survival_rates(df_trn: pd.DataFrame, df_tst: pd.DataFrame, index_column: str,
-                   value_column: str, value_min: int = 1) -> tuple:
+def survival_rates(df_trn: pd.DataFrame,
+                   df_tst: pd.DataFrame,
+                   index_column: str,
+                   value_column: str,
+                   value_min: int = 1) -> tuple:
     """
     Calculate survival rates for unique values of `index_column`.
     Only uses entries with `value_column' feature `> value_min`.
@@ -55,7 +58,7 @@ def survival_rates(df_trn: pd.DataFrame, df_tst: pd.DataFrame, index_column: str
                                           value_column]].median()
     rates = {}
     for i in range(len(df_sr)):
-        if (df_sr.index[i] in non_unique \
+        if (df_sr.index[i] in non_unique
            and df_sr.iloc[i, 1] > value_min):
             rates[df_sr.index[i]] = df_sr.iloc[i, 0]
 

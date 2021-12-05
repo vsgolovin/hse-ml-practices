@@ -16,7 +16,8 @@ def read_dataset(folder: str, filename: str) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def read_train(folder: str = 'raw', filename: str = 'train.csv') -> pd.DataFrame:
+def read_train(folder: str = 'raw',
+               filename: str = 'train.csv') -> pd.DataFrame:
     """
     Read train dataset `filename` from directory `folder`
     (`folder` is one of `'raw'`, `'interim'`, `'processed'`).
@@ -39,7 +40,7 @@ def concat_df(df_train: pd.DataFrame, df_test: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([df_train, df_test], sort=True).reset_index(drop=True)
 
 
-def split_df(df_all: pd.DataFrame, row_num=890, drop_test=['Survived']):
+def split_df(df_all: pd.DataFrame, row_num=890, drop_test=('Survived')):
     """
     Split dataframe `df` in 2 dataframes -- train and test sets.
     Include all rows up to `row_num` in the train set.
