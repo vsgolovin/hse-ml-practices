@@ -1,10 +1,14 @@
 import random
+import matplotlib
 import pandas as pd
-from src.model import leaderboard_model, run_classifier
+from src.model import leaderboard_model, plot_roc_curve, run_classifier
 import pytest
 
 
-def toy_dataset(n=1000, train=0.8):
+@pytest.fixture
+def toy_dataset():
+    n = 1000
+    train = 0.8
     data = []
     for _ in range(n):
         x = random.random()
@@ -23,13 +27,23 @@ def toy_dataset(n=1000, train=0.8):
     return x_train, y_train, x_test, y_test, df.drop(columns=['c'])
 
 
-@pytest.mark.parametrize('n', [1000])
-@pytest.mark.parametrize('train', [0.8])
-def test_classifier(n, train):
-    x_train, y_train, x_test, y_test, df = toy_dataset(n, train)
-    print(y_train)
+@pytest.fixture
+def classification_results(toy_dataset):
+    x_train, y_train, x_test, y_test, df = toy_dataset
     model = leaderboard_model()
-    probs = run_classifier(model, x_train, y_train, x_test, df)[2]
+    return run_classifier(model, x_train, y_train, x_test, df)
+
+
+def test_classifier(toy_dataset, classification_results):
+    y_test = toy_dataset[3]
+    probs = classification_results[2]
     cols = [col for col in probs if col.endswith('Prob_1')]
     y_pred = probs.loc[:, cols].mean(axis=1).to_numpy(dtype=int)
     assert (y_pred == y_test).all()
+
+
+def test_roc_curve(classification_results):
+    fprs, tprs, _, _ = classification_results
+    fig = plot_roc_curve(fprs, tprs)
+    assert isinstance(fig, matplotlib.figure.Figure) \
+        and len(fig.get_axes()) == 1
