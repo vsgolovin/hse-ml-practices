@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import StratifiedKFold
-import read_data as rd
+import src.read_data as rd
 
 SEED = 42
 N_FOLDS = 5

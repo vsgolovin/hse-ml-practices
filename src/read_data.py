@@ -2,7 +2,6 @@
 Functions for reading and concatenating / splitting data.
 """
 
-
 import pandas as pd
 
 DATA_PATH = 'data'
