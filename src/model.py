@@ -17,14 +17,17 @@ N_FOLDS = 5
 
 
 @click.command()
-@click.option('--input_dir', default='processed',
+@click.option('--input_dir', default='processed', type=click.Path(),
               help='directory with input data')
-@click.option('--output_dir', default='reports/data',
+@click.option('--output_dir', default='reports/data', type=click.Path(),
               help='directory for storing Kaggle submission csv file')
-@click.option('--plot_dir', default='reports/figures',
+@click.option('--plot_dir', default='reports/figures', type=click.Path(),
               help='directory for plots')
-@click.option('--seed', default=42, help='random seed')
+@click.option('--seed', default=42, help='random seed', type=click.INT)
 def main(input_dir, output_dir, plot_dir, seed):
+    """
+    Run the classifier and generate plots + a csv file for a Kaggle submission.
+    """
     # Read data
     df_train = rd.read_train(input_dir)
     df_test = rd.read_test(input_dir)

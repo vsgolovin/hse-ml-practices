@@ -12,8 +12,9 @@ import click
 
 
 @click.command()
-@click.option('--input_dir', default='interim', help='directory with input data')
-@click.option('--output_dir', default='processed',
+@click.option('--input_dir', default='interim', type=click.Path(),
+              help='directory with input data')
+@click.option('--output_dir', default='processed', type=click.Path(),
               help='directory for output data')
 def main(input_dir, output_dir):
     """
