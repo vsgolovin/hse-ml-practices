@@ -9,9 +9,9 @@ import click
 
 
 @click.command()
-@click.option('--input_dir', default='raw', type=click.Path(),
+@click.option('--input_dir', default='data/raw', type=click.Path(),
               help='directory with input data')
-@click.option('--output_dir', default='interim', type=click.Path(),
+@click.option('--output_dir', default='data/interim', type=click.Path(),
               help='directory for output data')
 def main(input_dir, output_dir):
     """
@@ -54,10 +54,8 @@ def main(input_dir, output_dir):
 
     # Save processed train and test datasets
     df_train, df_test = rd.split_df(df_all)
-    df_train.to_csv('/'.join((rd.DATA_PATH, output_dir, 'train.csv')),
-                    index=False)
-    df_test.to_csv('/'.join((rd.DATA_PATH, output_dir, 'test.csv')),
-                   index=False)
+    df_train.to_csv('/'.join((output_dir, 'train.csv')), index=False)
+    df_test.to_csv('/'.join((output_dir, 'test.csv')), index=False)
 
 
 if __name__ == '__main__':

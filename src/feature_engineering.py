@@ -12,9 +12,9 @@ import click
 
 
 @click.command()
-@click.option('--input_dir', default='interim', type=click.Path(),
+@click.option('--input_dir', default='data/interim', type=click.Path(),
               help='directory with input data')
-@click.option('--output_dir', default='processed', type=click.Path(),
+@click.option('--output_dir', default='data/processed', type=click.Path(),
               help='directory for output data')
 def main(input_dir, output_dir):
     """
@@ -98,10 +98,8 @@ def main(input_dir, output_dir):
     df_test.drop(columns=drop_cols, inplace=True)
 
     # port processed data
-    df_train.to_csv('/'.join((rd.DATA_PATH, output_dir, 'train.csv')),
-                    index=False)
-    df_test.to_csv('/'.join((rd.DATA_PATH, output_dir, 'test.csv')),
-                   index=False)
+    df_train.to_csv('/'.join((output_dir, 'train.csv')), index=False)
+    df_test.to_csv('/'.join((output_dir, 'test.csv')), index=False)
 
 
 def extract_surname(data: pd.Series) -> list:

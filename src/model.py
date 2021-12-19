@@ -17,7 +17,7 @@ N_FOLDS = 5
 
 
 @click.command()
-@click.option('--input_dir', default='processed', type=click.Path(),
+@click.option('--input_dir', default='data/processed', type=click.Path(),
               help='directory with input data')
 @click.option('--output_dir', default='reports/data', type=click.Path(),
               help='directory for storing Kaggle submission csv file')
