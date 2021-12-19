@@ -7,6 +7,7 @@ setup(
     packages=['titanic'],
     package_dir={'titanic': 'src'},
     install_requires=[
+        'click',
         'matplotlib',
         'numpy',
         'pandas',

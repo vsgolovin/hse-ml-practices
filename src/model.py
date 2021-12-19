@@ -11,15 +11,23 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import StratifiedKFold
 import titanic.read_data as rd
+import click
 
-SEED = 42
 N_FOLDS = 5
 
 
-def main():
+@click.command()
+@click.option('--input_dir', default='processed',
+              help='directory with input data')
+@click.option('--output_dir', default='reports/data',
+              help='directory for storing Kaggle submission csv file')
+@click.option('--plot_dir', default='reports/figures',
+              help='directory for plots')
+@click.option('--seed', default=42, help='random seed')
+def main(input_dir, output_dir, plot_dir, seed):
     # Read data
-    df_train = rd.read_train('processed')
-    df_test = rd.read_test('processed')
+    df_train = rd.read_train(input_dir)
+    df_test = rd.read_test(input_dir)
     df_all = rd.concat_df(df_train, df_test)
     df_all = df_all.drop(columns=['Survived'])
 
@@ -34,7 +42,7 @@ def main():
     print('x_test shape: {}'.format(x_test.shape))
 
     # Random forest classifier
-    model = leaderboard_model()
+    model = leaderboard_model(seed)
 
     # train model
     fprs, tprs, probs, importances = run_classifier(
@@ -42,17 +50,17 @@ def main():
 
     # plotting
     fig = plot_roc_curve(fprs, tprs)
-    fig.savefig('reports/figures/roc.png')
+    fig.savefig('/'.join((plot_dir, 'roc.png')))
     fig = plot_importances(importances)
-    fig.savefig('reports/figures/feature_importance.png')
+    fig.savefig('/'.join((plot_dir, 'feature_importance.png')))
 
     # csv file for Kaggle submission
     submission_df = kaggle_submission(probs)
-    submission_df.to_csv('reports/data/submissions.csv',
+    submission_df.to_csv('/'.join((output_dir, 'submissions.csv')),
                          header=True, index=False)
 
 
-def leaderboard_model():
+def leaderboard_model(seed):
     """
     Returns classifier with hyperparameters optimized for Kaggle leaderboard.
     Function created purely for testing convenience.
@@ -64,7 +72,7 @@ def leaderboard_model():
                                   min_samples_leaf=6,
                                   max_features='auto',
                                   oob_score=True,
-                                  random_state=SEED,
+                                  random_state=seed,
                                   n_jobs=-1,
                                   verbose=1)
 

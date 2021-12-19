@@ -1,8 +1,6 @@
 """
 Create new features and drop useless ones.
-Data is read from `data/interim` and should not have NaNs.
-New data is saved to `data/processed` and it intended to be used for training
-and testing the model.
+Input data is read from `data/interim` and should not have NaNs.
 """
 
 import string
@@ -10,12 +8,21 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 import titanic.read_data as rd
+import click
 
 
-def main():
+@click.command()
+@click.option('--input_dir', default='interim', help='directory with input data')
+@click.option('--output_dir', default='processed',
+              help='directory for output data')
+def main(input_dir, output_dir):
+    """
+    Change features in the titanic dataset. Read `train.csv` and `test.csv` and
+    modify the exported versions to a different directory.
+    """
     # Read data
-    df_train = rd.read_train('interim')
-    df_test = rd.read_test('interim')
+    df_train = rd.read_train(input_dir)
+    df_test = rd.read_test(input_dir)
     df_all = rd.concat_df(df_train, df_test)
 
     # Binning continuous features
@@ -90,8 +97,10 @@ def main():
     df_test.drop(columns=drop_cols, inplace=True)
 
     # port processed data
-    df_train.to_csv('data/processed/train.csv', index=False)
-    df_test.to_csv('data/processed/test.csv', index=False)
+    df_train.to_csv('/'.join((rd.DATA_PATH, output_dir, 'train.csv')),
+                    index=False)
+    df_test.to_csv('/'.join((rd.DATA_PATH, output_dir, 'test.csv')),
+                   index=False)
 
 
 def extract_surname(data: pd.Series) -> list:

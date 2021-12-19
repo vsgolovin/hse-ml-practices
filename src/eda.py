@@ -4,20 +4,22 @@ See the corresponding section of the jupyter-notebook for more details.
 """
 
 import pandas as pd
-from titanic.read_data import read_test, read_train, concat_df, split_df
-
-INPUT_DIR = 'raw'
-OUTPUT_DIR = 'interim'
+import titanic.read_data as rd
+import click
 
 
-def main():
+@click.command()
+@click.option('--input_dir', default='raw', help='directory with input data')
+@click.option('--output_dir', default='interim',
+              help='directory for output data')
+def main(input_dir, output_dir):
     """
     Modify the raw `titanic` dataset -- fill in blanks and replace the `Cabin`
     column with `Deck`.
     """
-    df_train = read_train(INPUT_DIR)
-    df_test = read_test(INPUT_DIR)
-    df_all = concat_df(df_train, df_test)
+    df_train = rd.read_train(input_dir)
+    df_test = rd.read_test(input_dir)
+    df_all = rd.concat_df(df_train, df_test)
 
     # Filling the missing values in Age
     # with the medians of Sex and Pclass groups
@@ -50,9 +52,11 @@ def main():
     df_all.drop(['Cabin'], inplace=True, axis=1)
 
     # Save processed train and test datasets
-    df_train, df_test = split_df(df_all)
-    df_train.to_csv('data/interim/train.csv', index=False)
-    df_test.to_csv('data/interim/test.csv', index=False)
+    df_train, df_test = rd.split_df(df_all)
+    df_train.to_csv('/'.join((rd.DATA_PATH, output_dir, 'train.csv')),
+                    index=False)
+    df_test.to_csv('/'.join((rd.DATA_PATH, output_dir, 'test.csv')),
+                   index=False)
 
 
 if __name__ == '__main__':
