@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-import src.read_data as rd
+import titanic.read_data as rd
 
 
 @pytest.mark.parametrize('folder', ['raw', 'interim', 'processed'])

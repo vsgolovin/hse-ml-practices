@@ -1,7 +1,7 @@
 import random
 import matplotlib
 import pandas as pd
-from src.model import leaderboard_model, plot_roc_curve, run_classifier
+from titanic.model import leaderboard_model, plot_roc_curve, run_classifier
 import pytest
 
 

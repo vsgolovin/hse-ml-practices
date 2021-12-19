@@ -4,12 +4,19 @@ See the corresponding section of the jupyter-notebook for more details.
 """
 
 import pandas as pd
-from src.read_data import read_test, read_train, concat_df, split_df
+from titanic.read_data import read_test, read_train, concat_df, split_df
+
+INPUT_DIR = 'raw'
+OUTPUT_DIR = 'interim'
 
 
 def main():
-    df_train = read_train('raw')
-    df_test = read_test('raw')
+    """
+    Modify the raw `titanic` dataset -- fill in blanks and replace the `Cabin`
+    column with `Deck`.
+    """
+    df_train = read_train(INPUT_DIR)
+    df_test = read_test(INPUT_DIR)
     df_all = concat_df(df_train, df_test)
 
     # Filling the missing values in Age

@@ -1,7 +1,7 @@
 import pytest
 import random
 import pandas as pd
-import src.feature_engineering as fteng
+import titanic.feature_engineering as fteng
 
 
 def test_extract_surname():

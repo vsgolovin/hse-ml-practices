@@ -9,7 +9,7 @@ import string
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
-import src.read_data as rd
+import titanic.read_data as rd
 
 
 def main():
