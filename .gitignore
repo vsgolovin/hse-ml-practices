@@ -1,6 +1,6 @@
 # Processed data
-data/*
-!data/raw/
+data/interim/*
+data/processed/*
 
 # Snakemake
 .snakemake
