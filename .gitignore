@@ -1,6 +1,6 @@
 # Processed data
-data/interim/*
-data/processed/*
+data/interim/*.csv
+data/processed/*.csv
 
 # Snakemake
 .snakemake
