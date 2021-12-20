@@ -59,7 +59,7 @@ def main(input_dir, output_dir, plot_dir, seed):
 
     # csv file for Kaggle submission
     submission_df = kaggle_submission(probs)
-    submission_df.to_csv('/'.join((output_dir, 'submissions.csv')),
+    submission_df.to_csv('/'.join((output_dir, 'submission.csv')),
                          header=True, index=False)
 
 

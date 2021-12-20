@@ -2,6 +2,9 @@
 data/*
 !data/raw/
 
+# Snakemake
+.snakemake
+
 # Generic Python .gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
