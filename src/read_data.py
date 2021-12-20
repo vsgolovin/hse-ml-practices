@@ -4,30 +4,27 @@ Functions for reading and concatenating / splitting data.
 
 import pandas as pd
 
-DATA_PATH = 'data'
-
 
 def read_dataset(folder: str, filename: str) -> pd.DataFrame:
     """
-    Read dataframe from `DATA_PATH`/`folder`/`filename` csv file.
+    Read dataframe from `folder`/`filename` csv file.
     """
-    path = '/'.join((DATA_PATH, folder, filename))
+    path = '/'.join((folder, filename))
     return pd.read_csv(path)
 
 
-def read_train(folder: str = 'raw',
+def read_train(folder: str = 'data/raw',
                filename: str = 'train.csv') -> pd.DataFrame:
     """
     Read train dataset `filename` from directory `folder`
-    (`folder` is one of `'raw'`, `'interim'`, `'processed'`).
     """
     return read_dataset(folder, filename)
 
 
-def read_test(folder: str = 'raw', filename: str = 'test.csv') -> pd.DataFrame:
+def read_test(folder: str = 'data/raw',
+              filename: str = 'test.csv') -> pd.DataFrame:
     """
     Read test dataset `filename` from directory `folder`
-    (`folder` is one of `'raw'`, `'interim'`, `'processed'`).
     """
     return read_dataset(folder, filename)
 

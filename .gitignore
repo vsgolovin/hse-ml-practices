@@ -1,3 +1,11 @@
+# Processed data
+data/interim/*.csv
+data/processed/*.csv
+
+# Snakemake
+.snakemake
+
+# Generic Python .gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
