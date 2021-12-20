@@ -30,7 +30,7 @@ def toy_dataset():
 @pytest.fixture
 def classification_results(toy_dataset):
     x_train, y_train, x_test, y_test, df = toy_dataset
-    model = leaderboard_model()
+    model = leaderboard_model(seed=42)
     return run_classifier(model, x_train, y_train, x_test, df)
 
 

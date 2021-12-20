@@ -5,24 +5,26 @@ import titanic.read_data as rd
 
 @pytest.mark.parametrize('folder', ['raw', 'interim', 'processed'])
 def test_read_train(folder):
+    folder = '/'.join(('data', folder))
     df = rd.read_train(folder)
     assert isinstance(df, pd.core.frame.DataFrame) and df.shape[0] == 891
 
 
 @pytest.mark.parametrize('folder', ['raw', 'interim', 'processed'])
 def test_read_test(folder):
+    folder = '/'.join(('data', folder))
     df = rd.read_test(folder)
     assert isinstance(df, pd.core.frame.DataFrame) and df.shape[0] == 418
 
 
 @pytest.fixture
 def raw_train_dataset():
-    return rd.read_train('raw')
+    return rd.read_train('data/raw')
 
 
 @pytest.fixture
 def interim_train_dataset():
-    return rd.read_train('interim')
+    return rd.read_train('data/interim')
 
 
 @pytest.mark.parametrize('row_num', [*range(891)])
